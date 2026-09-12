@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # Base de datos PostgreSQL
+  bd-postgres:
+    image: postgres:alpine
+    container_name: contenedor-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: laboratorio_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - datos-postgres:/var/lib/postgresql/data
+    networks:
+      - red-laboratorio
+
+  # Instancia 1 de la API (Puerto 3000)
+  api-1:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api-servicio-1
+    ports:
+      - "3000:3000"
+    environment:
+      - MESSAGE=${MESSAGE}
+    depends_on:
+      - bd-postgres
+    networks:
+      - red-laboratorio
+
+  # Instancia 2 de la API (Puerto 3001)
+  api-2:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api-servicio-2
+    ports:
+      - "3001:3000"
+    environment:
+      - MESSAGE=${MESSAGE}
+    depends_on:
+      - bd-postgres
+    networks:
+      - red-laboratorio
+
+  # Instancia 3 de la API (Puerto 3002)
+  api-3:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: api-servicio-3
+    ports:
+      - "3002:3000"
+    environment:
+      - MESSAGE=${MESSAGE}
+    depends_on:
+      - bd-postgres
+    networks:
+      - red-laboratorio
+
+# Volúmenes persistentes para almacenamiento de BD
+volumes:
+  datos-postgres:
+
+# Red personalizada para comunicación interna
+networks:
+  red-laboratorio:
+    driver: bridge
